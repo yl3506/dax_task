@@ -50,7 +50,7 @@ function surveyProcedure() {
         choices: ['Finish Study'],
         on_finish: function() {
             // Redirect to completion URL
-            window.location.href = 'https://www.prolific.co/completion-url';
+            // window.location.href = 'https://www.prolific.co/completion-url';
         }
     });
 

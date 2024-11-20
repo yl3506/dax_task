@@ -22,14 +22,35 @@ function saveDataLocally() {
 
 // Function to save data to server
 function saveDataToServer() {
-    const data = jsPsych.data.get().csv();
+    const participantId = EXPERIMENT_PARAMS.participant_id;
+    const startTime = EXPERIMENT_PARAMS.start_time.toISOString();
+    const completionTime = new Date().toISOString();
+    const finished = true; // Assuming they reached the end
+
+    // Extract data from jsPsych
+    const trialData = jsPsych.data.get().values();
+
+    // Process trial data to extract the necessary information
+    const processedData = processTrialData(trialData);
+
+    // Include survey responses
+    const surveyResponses = jsPsych.data.get().filter({trial_type: 'survey-text'}).values().map(trial => trial.response);
+
+    // Prepare data object to send to server
+    const dataToSave = {
+        participant_id: participantId,
+        start_time: startTime,
+        completion_time: completionTime,
+        finished: finished,
+        trial_data: processedData,
+        survey_responses: surveyResponses
+    };
+
+    // Send data to server
     fetch('server/save_data.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            filename: `data_${EXPERIMENT_PARAMS.participant_id}.csv`,
-            filedata: data
-        })
+        body: JSON.stringify(dataToSave)
     })
     .then(response => response.text())
     .then(result => {
@@ -38,6 +59,54 @@ function saveDataToServer() {
     .catch(error => {
         console.error('Error saving data to server:', error);
     });
+}
+
+// Function to process trial data
+function processTrialData(trialData) {
+    const data = [];
+
+    // Iterate over trialData and extract necessary information
+    for (const trial of trialData) {
+        const trialInfo = {};
+
+        // Collect common data
+        trialInfo.trial_index = trial.trial_index;
+        trialInfo.trial_type = trial.trial_type;
+        trialInfo.time_elapsed = trial.time_elapsed;
+        trialInfo.rt = trial.rt;
+
+        // Practice attempts and max attempts
+        if (trial.practiceAttempts !== undefined) {
+            trialInfo.practice_attempts = trial.practiceAttempts;
+            trialInfo.exceeded_max_attempts = trial.practiceAttempts >= 2;
+        }
+
+        // Input and output data
+        trialInfo.input = trial.input || '';
+        trialInfo.participant_response = trial.participant_response || [];
+        trialInfo.correct_output = trial.correct_output || [];
+        trialInfo.correct = trial.correct || false;
+        trialInfo.catch_trial = trial.catch_trial || false;
+
+        // Additional data (e.g., function names, arguments)
+        if (trial.function_name) {
+            trialInfo.function_name = trial.function_name;
+        }
+        if (trial.args) {
+            trialInfo.args = trial.args;
+        }
+        if (trial.funcs) {
+            trialInfo.funcs = trial.funcs;
+        }
+        if (trial.pattern) {
+            trialInfo.pattern = trial.pattern;
+        }
+
+        // Push trialInfo to data array
+        data.push(trialInfo);
+    }
+
+    return data;
 }
 
 // Utility function to generate unique participant IDs

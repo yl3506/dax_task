@@ -22,11 +22,12 @@ function createTestPhase(functionIndex) {
 
   // Create trials
   const testTrials = [];
-
   // Instructions
   testTrials.push({
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<h2>Testing: Apply Function "${func.name}"</h2>`,
+    stimulus: `<h3>Testing: Operation "${func.name}"</h3>
+              <h5>Let's apply operation "${func.name}" to some new words.</h5>
+              <h5>No feedback will be provided.</h5>`,
     choices: ['Continue']
   });
 
@@ -46,46 +47,41 @@ function createTestTrial(func, item, referenceExamples) {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function() {
       let html = `<div id="test-container">`;
-      html += `<h2>Testing: Function "${func.name}"</h2>`;
+      html += `<h3>Testing: Operation "${func.name}"</h3>`;
       html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
-      html += '<h4>Example(s):</h4>';
       // Display the 2 study examples with solutions
-      for (const ex of referenceExamples) {
-        html += renderExampleWithSolution(ex);
-      }
-      html += `<h4>Please produce the output for this new example:</h4>`;
-      html += `<p>${item.input} → </p>`;
+      html += renderAllExamplesWithSolutions(referenceExamples);
+      html += `<h5>Please produce the output for this new example:`;
       if (item.catch_trial) {
-        html += '<p>(Catch Trial)</p>';
+        html += ` *</h5>`;
       }
-
+      else{
+        html += `</h5>`;
+      }
+      html += `<p>${item.input} → </p>`;
       // Include drag-and-drop interface
       html += createDragAndDropInterface();
-
       html += `</div>`; // Close the test-container div
       return html;
     },
     choices: "NO_KEYS",
     data: {
-      correct_output: correctOutput,
-      catch_trial: item.catch_trial || false,
-      function_name: func.name,
-      input: item.input
-    },
-    
+            input: item.input,
+            correct_output: item.output,
+            catch_trial: item.catch_trial || false,
+            trial_type_custom: 'test',
+            function_name: func.name,
+            args: item.args,
+            funcs: item.funcs || null,
+            pattern: item.pattern || null
+        },
     on_load: function() {
-      console.log('correctOutput in on_load:', correctOutput);
-      // Access correctOutput via closure
-      if (!correctOutput) {
-        console.error('correctOutput is undefined in on_load');
-      }
-      setupDragAndDropTest(correctOutput);
+        setupDragAndDropTest(item.output);
     },
     on_finish: function(data) {
-      data.participant_response = data.participant_response || [];
-      data.correct = data.correct || false;
-      data.correct_output = correctOutput; // Ensure correctOutput is saved
-      EXPERIMENT_PARAMS.data.push(data);
+        data.participant_response = data.participant_response || [];
+        data.correct = data.correct || false;
+        data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
     }
   };
 }

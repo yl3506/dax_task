@@ -1,12 +1,14 @@
+const color_height = 25;
+const color_width = 25;
+const color_margin = 20;
 
 function createDragAndDropInterface() {
    return `
-       <h5>Drag and arrange the colored circles below.</h5>
-       <div id="stimuli-list" style="display: flex; flex-wrap: wrap;">
+       <div id="stimuli-list" style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center;">
            ${getUniqueColorCirclesHTML()}
        </div>
-       <div id="drop-area" style="border: 2px dashed #ccc; height: 100px; margin-top: 10px; padding: 10px;">
-           <p>Drop circles here</p>
+       <div id="drop-area" style="text-align: center; border: 2px dashed #ccc; height: 80px; margin-top: 10px; padding: 10px; ">
+           <p>Drop items here</p>
        </div>
        <div id="buttons" style="margin-top: 10px;">
            <button id="reset-button" type="button">Reset</button>
@@ -16,7 +18,6 @@ function createDragAndDropInterface() {
 }
 
 function setupDragAndDropPractice(correctOutput) {
-
     const stimuliList = document.getElementById('stimuli-list');
     const dropArea = document.getElementById('drop-area');
 
@@ -29,20 +30,34 @@ function setupDragAndDropPractice(correctOutput) {
         });
     });
 
-    // Add dragover and drop event listeners to the drop area
+    // Handle dragover on dropArea for rearrangement
     dropArea.addEventListener('dragover', function(e) {
         e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        const draggingItem = document.querySelector('.dragging');
+        if (!draggingItem) return;
+
+        const afterElement = getDragAfterElement(dropArea, e.clientX);
+
+        if (afterElement == null) {
+            dropArea.appendChild(draggingItem);
+        } else {
+            dropArea.insertBefore(draggingItem, afterElement);
+        }
     });
 
+    // Handle drop on dropArea for adding new items from stimuliList
     dropArea.addEventListener('drop', function(e) {
         e.preventDefault();
         const source = e.dataTransfer.getData('drag-source');
         const color = e.dataTransfer.getData('text/plain');
+        const draggingItem = document.querySelector('.dragging');
 
         if (source === 'stimuli-list') {
             addCircleToDropArea(color);
         }
-        // If source is 'drop-area', do nothing
+        // No additional handling needed for rearrangement; it's managed during dragover
     });
 
     // Reset button functionality
@@ -74,8 +89,8 @@ function setupDragAndDropPractice(correctOutput) {
             } else if (isCorrect) {
                 feedback_html = '<p style="color:green;">Correct!</p>';
             } else {
-                const correctDisplay = correctOutput.map(color => `<img src="images/${color}.png" alt="${color}" style="width:32px; height:18px;">`).join(' ');
-                feedback_html = `<p style="color:red;">Incorrect. The correct answer is: ${correctDisplay}</p>`;
+                const correctDisplay = correctOutput.map(color => `<img src="images/${color}.png" alt="${color}" style="width:${color_width}px; height:${color_height}px; margin-left:${color_margin}px">`).join(' ');
+                feedback_html = `<p style="color:red;">Incorrect. The answer is: ${correctDisplay}</p>`;
             }
 
             // Display feedback
@@ -118,13 +133,26 @@ function setupDragAndDropPractice(correctOutput) {
 }
 
 
+function getDragAfterElement(container, x) {
+    const draggableElements = [...container.querySelectorAll('img:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 
 function setupDragAndDropTest(correctOutput) {
     console.log('correctOutput in setupDragAndDropTest:', correctOutput);
     if (!correctOutput) {
         console.error('correctOutput is undefined in setupDragAndDropTest');
     }
-
     const stimuliList = document.getElementById('stimuli-list');
     const dropArea = document.getElementById('drop-area');
 
@@ -137,16 +165,29 @@ function setupDragAndDropTest(correctOutput) {
         });
     });
 
-    // Add dragover and drop event listeners to the drop area
+    // Handle dragover on dropArea
     dropArea.addEventListener('dragover', function(e) {
         e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+
+        const draggingItem = document.querySelector('.dragging');
+        if (!draggingItem) return;
+
+        const afterElement = getDragAfterElement(dropArea, e.clientX);
+
+        if (afterElement == null) {
+            dropArea.appendChild(draggingItem);
+        } else {
+            dropArea.insertBefore(draggingItem, afterElement);
+        }
     });
 
+    // Handle drop on dropArea
     dropArea.addEventListener('drop', function(e) {
         e.preventDefault();
         const source = e.dataTransfer.getData('drag-source');
         const color = e.dataTransfer.getData('text/plain');
-
+        const draggingItem = document.querySelector('.dragging');
         if (source === 'stimuli-list') {
             addCircleToDropArea(color);
         }
@@ -166,7 +207,6 @@ function setupDragAndDropTest(correctOutput) {
       sortedItems.forEach(img => {
         participantResponse.push(img.dataset.color);
       });
-
       const isCorrect = checkResponse(correctOutput, participantResponse);
 
       // Finish trial and pass data
@@ -182,64 +222,34 @@ function setupDragAndDropTest(correctOutput) {
 }
 
 
-
 function addCircleToDropArea(color) {
     const dropArea = document.getElementById('drop-area');
     // Remove placeholder text
     if (dropArea.querySelector('p')) {
         dropArea.querySelector('p').remove();
     }
-
     const newImg = document.createElement('img');
     newImg.src = `images/${color}.png`;
     newImg.alt = color;
     newImg.dataset.color = color;
-    newImg.style.width = '48px';
-    newImg.style.height = '27px';
-    newImg.style.margin = '5px';
+    newImg.style.width = `${color_width}px`;
+    newImg.style.height = `${color_width}px`;
+    newImg.style.margin = `${color_margin/2}px`;
     newImg.style.cursor = 'grab';
     newImg.draggable = true;
 
-    // Add drag and drop functionality for reordering
+    // Add drag and drop functionality
     newImg.addEventListener('dragstart', function(e) {
         e.dataTransfer.setData('text/plain', e.target.dataset.color);
         e.dataTransfer.setData('drag-source', 'drop-area');
         e.dataTransfer.effectAllowed = 'move';
         e.target.classList.add('dragging');
     });
-
     newImg.addEventListener('dragend', function(e) {
         e.target.classList.remove('dragging');
     });
-
-    newImg.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    });
-
-    newImg.addEventListener('drop', function(e) {
-        e.preventDefault();
-        const dropArea = e.target.parentNode;
-        const draggingItem = dropArea.querySelector('.dragging');
-        const targetItem = e.target;
-
-        if (draggingItem && targetItem && draggingItem !== targetItem) {
-            // Swap the positions
-            const items = Array.from(dropArea.children);
-            const draggingIndex = items.indexOf(draggingItem);
-            const targetIndex = items.indexOf(targetItem);
-
-            if (draggingIndex > targetIndex) {
-                dropArea.insertBefore(draggingItem, targetItem);
-            } else {
-                dropArea.insertBefore(draggingItem, targetItem.nextSibling);
-            }
-        }
-    });
-
     dropArea.appendChild(newImg);
 }
-
 
 
 function disableDragAndDrop() {
@@ -250,7 +260,6 @@ function disableDragAndDrop() {
         img.draggable = false;
         img.style.opacity = '0.5';
     });
-
     // Disable dragging within drop area
     const dropArea = document.getElementById('drop-area');
     const dropImages = dropArea.querySelectorAll('img');
@@ -258,17 +267,17 @@ function disableDragAndDrop() {
         img.draggable = false;
         img.style.cursor = 'default';
     });
-
     // Disable Reset button
     document.getElementById('reset-button').disabled = true;
 }
 
 
 function getUniqueColorCirclesHTML() {
-    const colors = EXPERIMENT_PARAMS.colors;
+    colors = EXPERIMENT_PARAMS.colors;
+    colors = jsPsych.randomization.shuffle(colors);
     let html = '';
     for (const color of colors) {
-        html += `<img src="images/${color}.png" alt="${color}" data-color="${color}" draggable="true" style="width:48px; height:27px; margin: 5px; cursor: grab;">`;
+        html += `<img src="images/${color}.png" alt="${color}" data-color="${color}" draggable="true" style="width:${color_width}px; height:${color_height}px; margin-left:${color_margin}px; cursor: grab;">`;
     }
     return html;
 }
@@ -314,9 +323,9 @@ function renderPrimitives() {
     let html = '<div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center;">';
     for (const word of primitives) {
     const color = wordColorMapping[word];
-        html += `<div style="width: 25%; text-align: center; margin-bottom: 10px;">
+        html += `<div style="width: 20%; text-align: center; margin-bottom: 10px;">
                  <p>${word}</p>
-                 <img src="images/${color}.png" alt="${color}" style="width:48px; height:27px;">
+                 <img src="images/${color}.png" alt="${color}" style="width:${color_width}px; height:${color_height}px; margin:${color_margin/2}px">
                </div>`;
     }
     html += '</div>';
@@ -324,32 +333,31 @@ function renderPrimitives() {
 }
 
 
-function renderStudyExamplesWithAnswers(functionIndex) {
-    const func = EXPERIMENT_PARAMS.functions[functionIndex];
-    const examples = generateUsageExamples(func, EXPERIMENT_PARAMS.concept_words);
-    let html = '';
-    for (const example of examples) {
-        example.output = func.func(example.args);
-        html += renderExampleWithSolution(example);
-    }
-    return html;
-}
-
-
 function renderExampleWithSolution(example) {
     const outputColors = example.output;
-    let html = `<p>${example.input} → `;
+    let html = `${example.input} → `;
     for (const color of outputColors) {
-        html += `<img src="images/${color}.png" alt="${color}" style="width:48px; height:27px;"> `;
+        html += `<img src="images/${color}.png" alt="${color}" style="width:${color_width}px; height:${color_height}px; margin-left:${color_margin}px"> `;
     }
-    html += '</p>';
     return html;
 }
 
 function renderAllExamplesWithSolutions(examples) {
     let html = '';
-    for (const example of examples) {
+    for (let i=0; i<examples.length; i++) {
+        example = examples[i];
+        if (i%2 == 0){ // 2 examples per row
+            html += `<p>`;
+        }
         html += renderExampleWithSolution(example);
+        if (i%2 == 0){
+            html += `&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp`; // space between examples
+        } else {
+            html += `</p>`;
+        }
+    }
+    if (examples.length%2==1){
+        html += `</p>`;
     }
     return html;
 }
@@ -361,8 +369,6 @@ function selectPrimitives(primitives, num) {
     }
     return jsPsych.randomization.sampleWithoutReplacement(primitives, num);
 }
-
-
 
 
 function checkResponse(correctOutput, participantOutput) {

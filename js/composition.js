@@ -36,7 +36,6 @@ function createCompositionPhase() {
   for (const stageExamples of EXPERIMENT_PARAMS.study_examples) {
     allStudyExamples.push(...stageExamples.slice(0, 2)); // First 2 examples from each stage
   }
-  // allStudyExamples.push(...examples.slice(0, 2)); // First 2 examples from composition stage
 
   // Create trials for the composition phase
   const compositionTrials = [];
@@ -45,12 +44,14 @@ function createCompositionPhase() {
   compositionTrials.push({
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
-      let html = `<h2>Training: Learn Function Compositions</h2>`;
+      let html = `<h3>Training: Learn Function Compositions</h3>
+              <h5>Learn how to apply multiple operations together and apply to words.</h5>
+              <h5>You will need to infer the priority of each operation during the combination.</h5>
+              <h5>Let's go through some examples and their answers.</h5>`;
       html += renderPrimitives();
-      html += '<h4>Example(s):</h4>';
       // Display first 2 study examples with solutions
       html += renderAllExamplesWithSolutions(allStudyExamples);
-      html += renderAllExamplesWithSolutions(examples.slice(0, 2));
+      html += `<b>${renderAllExamplesWithSolutions(examples.slice(0, 2))}</b>`;
       return html;
     },
     choices: ['Continue']
@@ -72,7 +73,6 @@ function createCompositionPhase() {
           EXPERIMENT_PARAMS.practiceAttempts = 0; // Reset attempt counter
           return false; // Exit the loop
         } else {
-          // lastTrialData.practice_attempts = practiceAttempts + 1;
           EXPERIMENT_PARAMS.practiceAttempts++; // Increment attempt counter
           return true; // Repeat the practice trial
         }
@@ -97,19 +97,14 @@ function createPracticeTrialForComposition(example, referenceExamples) {
      type: jsPsychHtmlKeyboardResponse,
      stimulus: function() {
       let html = `<div id="practice-container">`;
-      html += `<h2>Training: Function Compositions</h2>`;
+      html += `<h3>Training: Combining Operations</h3>`;
       html += renderPrimitives();
-      html += '<h4>Example(s):</h4>';
-
       // Display reference examples
       html += renderAllExamplesWithSolutions(referenceExamples);
-
-      html += `<h4>Try to produce the output for this new example:</h4>`;
+      html += `<h5>Try to produce the output for this new example:</h5>`;
       html += `<p>${example.input} → </p>`;
-
       // Include drag-and-drop interface
       html += createDragAndDropInterface();
-
       html += `</div>`; // Close the practice-container div
       return html;
     },
@@ -117,10 +112,21 @@ function createPracticeTrialForComposition(example, referenceExamples) {
      on_load: function() {
       setupDragAndDropPractice(example.output);
     },
+    data: {
+        input: example.input,
+        correct_output: example.output,
+        practiceAttempts: EXPERIMENT_PARAMS.practiceAttempts,
+        trial_type_custom: 'practice',
+        function_name: example.funcs,
+        args: example.args,
+        funcs: example.funcs || null,
+        pattern: example.pattern || null
+    },
      on_finish: function(data) {
        data.participant_response = data.participant_response || [];
        data.correct = data.correct || false;
        data.feedback_message = data.feedback_message || '';
+       data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
        practiceAttempts++;
        if (data.correct) {
          // Add the completed example to referenceExamples
@@ -132,12 +138,10 @@ function createPracticeTrialForComposition(example, referenceExamples) {
          });
        }
      },
-     data: {
-      correct_output: example.output,
-    }
    }],
  };
 }
+
 
 function createCompositionTestPhase(studyExamples) {
  const primitives = EXPERIMENT_PARAMS.concept_words;
@@ -153,7 +157,6 @@ function createCompositionTestPhase(studyExamples) {
  // Generate test items
  let testItems = generateCompositionTestItems(functions, primitives, studyExamples);
 
- 
   // Insert 2 catch trials randomly
   const catchTrials = studyExamples.slice(2, 4).map(example => ({
     input: example.input,
@@ -169,14 +172,14 @@ function createCompositionTestPhase(studyExamples) {
 
  // Create test trials
  const testTrials = [];
-
  // Instructions
  testTrials.push({
    type: jsPsychHtmlButtonResponse,
-   stimulus: `<h2>Testing: Apply Function Compositions</h2>`,
+   stimulus: `<h3>Testing: Combining Operations</h3>
+              <h5>Let's combine operations and apply to some new words.</h5>
+              <h5>No feedback will be provided.</h5>`,
    choices: ['Continue']
  });
-
  // Test trials
  for (const item of testItems) {
    testTrials.push(createCompositionTestTrial(item, allStudyExamples)); // Pass allStudyExamples
@@ -191,16 +194,18 @@ function createCompositionTestTrial(item, referenceExamples) {
        type: jsPsychHtmlKeyboardResponse,
        stimulus: function() {
          let html = `<div id="composition-test-container">`;
-         html += `<h2>Testing: Function Compositions</h2>`;
+         html += `<h3>Testing: Combining Operations</h3>`;
          html += renderPrimitives();
-         html += '<h4>Example(s):</h4>';
          // Display all study examples with solutions
          html += renderAllExamplesWithSolutions(referenceExamples);
-         html += `<h4>Please produce the output for this new example:</h4>`;
-          html += `<p>${item.input} → </p>`;
+         html += `<h5>Please produce the output for this new example:`;
           if (item.catch_trial) {
-            html += '<p>(Catch Trial)</p>';
+            html += ` *</h5>`;
           }
+          else{
+            html += `</h5>`;
+          }
+          html += `<p>${item.input} → </p>`;
           // Include drag-and-drop interface
           html += createDragAndDropInterface();
           html += `</div>`; // Close the container div
@@ -208,10 +213,16 @@ function createCompositionTestTrial(item, referenceExamples) {
        },
     choices: "NO_KEYS",
     data: {
-      correct_output: item.output,
-      catch_trial: item.catch_trial || false,
-      input: item.input
-    },
+            input: item.input,
+            correct_output: item.output,
+            catch_trial: item.catch_trial || false,
+            trial_type_custom: 'test',
+            function_name: item.funcs,
+            args: item.args,
+            funcs: item.funcs || null,
+            pattern: item.pattern || null
+        },
+
     on_load: function() {
       setupDragAndDropTest(item.output);
     },
@@ -219,10 +230,12 @@ function createCompositionTestTrial(item, referenceExamples) {
       data.participant_response = data.participant_response || [];
       data.correct = data.correct || false;
       data.correct_output = data.correct_output || [];
-      EXPERIMENT_PARAMS.data.push(data);
+      data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
+      // EXPERIMENT_PARAMS.data.push(data);
     }
   };
 }
+
 
 function generateCompositionExamples(functions, primitives) {
   const examples = [];
@@ -239,21 +252,20 @@ function generateCompositionExamples(functions, primitives) {
 
     if (primitives.length >= numArgsNeeded) {
       const args = selectPrimitives(primitives, numArgsNeeded);
-      const input = buildCompositionInput(comp.funcs, args);
+      // const input = buildCompositionInput(comp.funcs, args);
+      const input = buildCompositionInputFromPattern(comp.pattern, args, comp.funcs);
       const output = computeCompositionOutput(comp.pattern, args);
-
       examples.push({
-        input,
+        input: input,
+        output: output,
         funcs: comp.funcs,
         args: args,
-        output: output,
         pattern: comp.pattern
       });
     } else {
       console.error(`Not enough primitives to generate example for composition ${comp.pattern}. Need ${numArgsNeeded}, but have ${primitives.length}`);
     }
   }
-
   return examples;
 }
 
@@ -275,27 +287,24 @@ function generateCompositionTestItems(functions, primitives, studyExamples) {
 
     // Generate args that differ from study examples by at least one primitive
     let args = [];
-    let maxAttempts = 10;
+    let maxAttempts = 50;
     let attempts = 0;
     do {
       args = selectPrimitives(primitives, numArgsNeeded);
       attempts++;
     } while (!argsDifferEnough(args, studyExamples) && attempts < maxAttempts);
-
     if (attempts >= maxAttempts) {
       console.warn('Could not find suitable args that differ from study examples.');
     }
 
-    const input = buildCompositionInput(comp.funcs, args);
-    console.log('comp.pattern:', comp.pattern);
+    const input = buildCompositionInputFromPattern(comp.pattern, args, comp.funcs);
     const output = computeCompositionOutput(comp.pattern, args);
-    console.log('Computed output:', output);
 
     items.push({
-      input,
+      input: input,
+      output: output,
       funcs: comp.funcs,
       args: args,
-      output: output,
       pattern: comp.pattern,
     });
   }
@@ -313,24 +322,21 @@ function argsDifferEnough(args, studyExamples) {
 }
 
 
-function buildCompositionInput(funcLabels, args) {
-  // Reconstruct the input string based on funcLabels and args
-  // Since the pattern is now used for evaluation, we can reconstruct inputs directly
-  let input = '';
-  let argIndex = 0;
-
-  for (let i = 0; i < funcLabels.length + args.length; i++) {
-    if (i % 2 === 0) {
-      // Even index: argument
-      input += args[argIndex++];
-    } else {
-      // Odd index: function name
-      const funcLabel = funcLabels[(i - 1) / 2];
-      const funcName = EXPERIMENT_PARAMS.labelToFunctionName[funcLabel];
-      input += ` ${funcName} `;
-    }
+function buildCompositionInputFromPattern(pattern, args, funcLabels) {
+  let input = pattern;
+  // Replace 'arg1', 'arg2', etc., with actual arguments
+  for (let i = 0; i < args.length; i++) {
+    const argPlaceholder = `arg${i + 1}`;
+    const argValue = args[i];
+    input = input.replace(new RegExp(`\\b${argPlaceholder}\\b`, 'g'), argValue);
   }
-
+  // Replace 'func1', 'func2', etc., with actual function names
+  for (const funcLabel of funcLabels) {
+    const funcName = EXPERIMENT_PARAMS.labelToFunctionName[funcLabel];
+    input = input.replace(new RegExp(`\\b${funcLabel}\\b`, 'g'), funcName);
+  }
+  input = input.replaceAll('(', '');
+  input = input.replaceAll(')', '');
   return input.trim();
 }
 
@@ -344,6 +350,7 @@ function computeCompositionOutput(pattern, args) {
     const output = evaluateAST(ast, args, EXPERIMENT_PARAMS.labelToFunctionDef, EXPERIMENT_PARAMS.labelToFunctionArity);
     return output;
 }
+
 
 function composeFunctions(funcLabels, args) {
   let currentOutput = args[0];

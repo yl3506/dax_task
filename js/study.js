@@ -34,10 +34,15 @@ function createStudyPhase(functionIndex) {
   studyTrials.push({
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
-      let html = `<h2>Training: Learn Function "${func.name}"</h2>`;
+      let html = `<h3>Training: Operation "${func.name}"</h3>
+                <h5>Learn how to apply the operation "${func.name}" to words.</h5>
+                <h5>The "${func.name}" operation will ${func.description}</h5>
+                <h5>Let's go through some examples and their answers.</h5>
+                `;
       html += renderPrimitives(primitives, wordColorMapping);
-      html += '<h4>Example(s):</h4>';
+      html += `<p>`;
       html += renderExampleWithSolution(examples[0]);
+      html += '</p>';
       return html;
     },
     choices: ['Continue']
@@ -71,35 +76,37 @@ function createPracticeTrial(func, example, correctOutput, referenceExamples) {
      type: jsPsychHtmlKeyboardResponse,
      stimulus: function() {
      let html = `<div id="practice-container">`;
-     html += `<h2>Training: Function "${func.name}"</h2>`;
+     html += `<h3>Training: Operation "${func.name}"</h3>`;
      html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
-     html += '<h4>Example(s):</h4>';
-
      // Display reference examples (the first study example)
-     for (const ex of referenceExamples) {
-       html += renderExampleWithSolution(ex);
-     }
-
-     html += `<h4>Try to produce the output for this new example:</h4>`;
+     html += renderAllExamplesWithSolutions(referenceExamples);
+     html += `<h5>Try to produce the output for this new example:</h5>`;
      html += `<p>${example.input} → </p>`;
-
      // Include drag-and-drop interface 
      html += createDragAndDropInterface();
-     html += `</div>`; // Close the practice-container div
+     html += `</div>`; 
      return html;
     },
      choices: "NO_KEYS",
      on_load: function() {
      setupDragAndDropPractice(correctOutput.output);
     },
+    data: {
+        correct_output: correctOutput.output,
+        input: example.input,
+        practiceAttempts: EXPERIMENT_PARAMS.practiceAttempts,
+        trial_type_custom: 'practice',
+        function_name: func.name,
+        args: example.args,
+        funcs: example.funcs || null,
+        pattern: example.pattern || null
+    },
      on_finish: function(data) {
        data.participant_response = data.participant_response || [];
        data.correct = data.correct || false;
-       data.feedback_message = data.feedback_message || '';
+       data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
      },
-     data: {
-     correct_output: correctOutput.output,
-    },
+     
    }],
  };
 }

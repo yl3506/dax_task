@@ -3,22 +3,19 @@ const jsPsych = initJsPsych({
     use_webaudio: false,
     on_finish: function() {
         // For testing, save data locally
-        saveDataLocally();
+        // saveDataLocally();
 
         // For deployment, save data to server
-        // saveDataToServer();
+        saveDataToServer();
     }
 });
+
 
 // Global experiment parameters
 const EXPERIMENT_PARAMS = {
     K: 4,  // Number of novel concept words to teach
-    // N: 9, // Total pool of concept words
-    // M: 6,  // Total pool of colors
     F: 3,  // Number of novel functions to teach
-    // T: 3,  // Total pool of functions
     X: 2, // Number of test trials in single function stage
-    // Y: 5, // Number of test trals in composition stage
     participant_id: generateUniqueId(),
     start_time: new Date(),
     practiceAttempts: 0,
