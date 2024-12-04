@@ -44,17 +44,25 @@ function createCompositionPhase() {
   compositionTrials.push({
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
-      let html = `<h3>Training: Learn Function Compositions</h3>
-              <h5>Learn how to apply multiple operations together and apply to words.</h5>
-              <h5>You will need to infer the priority of each operation during the combination.</h5>
-              <h5>Let's go through some examples and their answers.</h5>`;
+      let html = `<h3>Training: Combining Operations</h3>
+                  <div class="content-container">
+                    <p>
+                    Learn how to apply multiple operations together.
+                    You need to figure out how to apply the operations <b>in the right order</b>.
+                    Let's go through 2 examples and 2 practices (with feedback).
+                    </p>
+                    <p>
+                    Below are examples of applying multiple operations and their correct answers.
+                    </p>
+              `;
       html += renderPrimitives();
       // Display first 2 study examples with solutions
       html += renderAllExamplesWithSolutions(allStudyExamples);
       html += `<b>${renderAllExamplesWithSolutions(examples.slice(0, 2))}</b>`;
+      html += `</div>`;
       return html;
     },
-    choices: ['Continue']
+    choices: ['Continue'],
   });
 
   // Participant responds to the last 2 study examples (with feedback)
@@ -98,14 +106,21 @@ function createPracticeTrialForComposition(example, referenceExamples) {
      stimulus: function() {
       let html = `<div id="practice-container">`;
       html += `<h3>Training: Combining Operations</h3>`;
+      html += `<div class="content-container">`;
       html += renderPrimitives();
       // Display reference examples
       html += renderAllExamplesWithSolutions(referenceExamples);
-      html += `<h5>Try to produce the output for this new example:</h5>`;
-      html += `<p>${example.input} → </p>`;
-      // Include drag-and-drop interface
+      html += `<p>
+              Let's practice. 
+              Keep in mind that there is a right order to apply the operations.
+              </p> 
+              <p>
+              Try to produce the output for this new example below. 
+              You will receive feedback.
+              </p>`;
+      html += `<p><b>${example.input} → </b></p>`;
       html += createDragAndDropInterface();
-      html += `</div>`; // Close the practice-container div
+      html += `</div></div>`; // Close the container div
       return html;
     },
      choices: "NO_KEYS",
@@ -125,6 +140,8 @@ function createPracticeTrialForComposition(example, referenceExamples) {
      on_finish: function(data) {
        data.participant_response = data.participant_response || [];
        data.correct = data.correct || false;
+       data.is_correct = data.isCorrect || false;
+       data.pass_example = data.passExample || false;
        data.feedback_message = data.feedback_message || '';
        data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
        practiceAttempts++;
@@ -175,10 +192,17 @@ function createCompositionTestPhase(studyExamples) {
  // Instructions
  testTrials.push({
    type: jsPsychHtmlButtonResponse,
-   stimulus: `<h3>Testing: Combining Operations</h3>
-              <h5>Let's combine operations and apply to some new words.</h5>
-              <h5>No feedback will be provided.</h5>`,
-   choices: ['Continue']
+   stimulus: `<h3 style="color: red">Testing: Combining Operations</h3>
+              <div class="content-container">
+                <p>Now you have an understanding of how combination of operations works.</p>
+                <p>Let's apply combination of operations to new items.</p>
+                <p>A reference of the word-item associations and all training examples you saw previously will be displayed.</p>
+                <p>You may see example(s) identical to the ones you saw from training.</p>
+                <p>In this phase, <b>no feedback</b> will be provided about your response's correctness.</p> 
+                <p>You will receive <b>bonus</b> payment for every example you answer correctly in this testing phase.</p>
+              </div>
+              `,
+   choices: ['Start'],
  });
  // Test trials
  for (const item of testItems) {
@@ -194,21 +218,22 @@ function createCompositionTestTrial(item, referenceExamples) {
        type: jsPsychHtmlKeyboardResponse,
        stimulus: function() {
          let html = `<div id="composition-test-container">`;
-         html += `<h3>Testing: Combining Operations</h3>`;
+         html += `<div class="content-container">`;
+         html += `<h3 style="color: red">Testing: Combining Operations</h3>`;
          html += renderPrimitives();
          // Display all study examples with solutions
          html += renderAllExamplesWithSolutions(referenceExamples);
-         html += `<h5>Please produce the output for this new example:`;
+         html += `<p>Please produce the output for this example:`;
           if (item.catch_trial) {
-            html += ` *</h5>`;
+            html += ` *</p>`;
           }
           else{
-            html += `</h5>`;
+            html += `</p>`;
           }
-          html += `<p>${item.input} → </p>`;
+          html += `<p style="color: red"><b>${item.input} → </b></p>`;
           // Include drag-and-drop interface
           html += createDragAndDropInterface();
-          html += `</div>`; // Close the container div
+          html += `</div></div>`; // Close the container div
           return html;
        },
     choices: "NO_KEYS",
@@ -230,8 +255,7 @@ function createCompositionTestTrial(item, referenceExamples) {
       data.participant_response = data.participant_response || [];
       data.correct = data.correct || false;
       data.correct_output = data.correct_output || [];
-      data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
-      // EXPERIMENT_PARAMS.data.push(data);
+      data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on trial
     }
   };
 }
@@ -355,14 +379,11 @@ function computeCompositionOutput(pattern, args) {
 function composeFunctions(funcLabels, args) {
   let currentOutput = args[0];
   let argIndex = 1; // Start from the second argument
-
   for (let i = 0; i < funcLabels.length; i++) {
     const funcLabel = funcLabels[i];
     const func = EXPERIMENT_PARAMS.labelToFunctionDef[funcLabel];
     const numArgs = EXPERIMENT_PARAMS.labelToFunctionArity[funcLabel];
-
     let funcArgs;
-
     if (numArgs === 1) {
       funcArgs = [currentOutput];
     } else if (numArgs === 2) {
@@ -373,7 +394,6 @@ function composeFunctions(funcLabels, args) {
       console.error(`Unsupported number of arguments for function ${funcLabel}: ${numArgs}`);
       return currentOutput;
     }
-
     currentOutput = func(funcArgs);
   }
 

@@ -20,46 +20,78 @@ function saveDataLocally() {
     }
 }
 
-// Function to save data to server
+
 function saveDataToServer() {
-    const participantId = EXPERIMENT_PARAMS.participant_id;
-    const startTime = EXPERIMENT_PARAMS.start_time.toISOString();
-    const completionTime = new Date().toISOString();
-    const finished = true; // Assuming they reached the end
+   const participantId = EXPERIMENT_PARAMS.participant_id;
+   const startTime = EXPERIMENT_PARAMS.start_time.toISOString();
+   const completionTime = new Date().toISOString();
 
-    // Extract data from jsPsych
-    const trialData = jsPsych.data.get().values();
+   // Get the data as CSV
+   const csvData = jsPsych.data.get().csv();
 
-    // Process trial data to extract the necessary information
-    const processedData = processTrialData(trialData);
+   // Prepare data object to send to server
+   const dataToSave = {
+       participant_id: participantId,
+       start_time: startTime,
+       completion_time: completionTime,
+       csv_data: csvData
+   };
 
-    // Include survey responses
-    const surveyResponses = jsPsych.data.get().filter({trial_type: 'survey-text'}).values().map(trial => trial.response);
-
-    // Prepare data object to send to server
-    const dataToSave = {
-        participant_id: participantId,
-        start_time: startTime,
-        completion_time: completionTime,
-        finished: finished,
-        trial_data: processedData,
-        survey_responses: surveyResponses
-    };
-
-    // Send data to server
-    fetch('server/save_data.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(dataToSave)
-    })
-    .then(response => response.text())
-    .then(result => {
-        console.log('Data saved to server:', result);
-    })
-    .catch(error => {
-        console.error('Error saving data to server:', error);
-    });
+   // Send data to server
+   fetch('server/save_data.php', {
+       method: 'POST',
+       headers: {'Content-Type': 'application/json'},
+       body: JSON.stringify(dataToSave)
+   })
+   .then(response => response.text())
+   .then(result => {
+       console.log('Data saved to server:', result);
+   })
+   .catch(error => {
+       console.error('Error saving data to server:', error);
+   });
 }
+
+// // Function to save data to server
+// function saveDataToServer() {
+//     const participantId = EXPERIMENT_PARAMS.participant_id;
+//     const startTime = EXPERIMENT_PARAMS.start_time.toISOString();
+//     const completionTime = new Date().toISOString();
+//     const finished = true; // Assuming they reached the end
+
+//     // Extract data from jsPsych
+//     const trialData = jsPsych.data.get().values();
+
+//     // Process trial data to extract the necessary information
+//     const processedData = processTrialData(trialData);
+
+//     // Include survey responses
+//     const surveyResponses = jsPsych.data.get().filter({trial_type: 'survey-text'}).values().map(trial => trial.response);
+
+//     // Prepare data object to send to server
+//     const dataToSave = {
+//         participant_id: participantId,
+//         start_time: startTime,
+//         completion_time: completionTime,
+//         finished: finished,
+//         trial_data: processedData,
+//         survey_responses: surveyResponses
+//     };
+
+//     // Send data to server
+//     fetch('server/save_data.php', {
+//         method: 'POST',
+//         headers: {'Content-Type': 'application/json'},
+//         body: JSON.stringify(dataToSave)
+//     })
+//     .then(response => response.text())
+//     .then(result => {
+//         console.log('Data saved to server:', result);
+//     })
+//     .catch(error => {
+//         console.error('Error saving data to server:', error);
+//     });
+// }
 
 // Function to process trial data
 function processTrialData(trialData) {

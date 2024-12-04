@@ -6,7 +6,6 @@ function createTestPhase(functionIndex) {
 
   // Retrieve the study examples from EXPERIMENT_PARAMS
   const examples = EXPERIMENT_PARAMS.study_examples[functionIndex];
-
   // Generate test items
   const testItems = generateTestItems(func, primitives, EXPERIMENT_PARAMS.X, examples);
 
@@ -25,10 +24,17 @@ function createTestPhase(functionIndex) {
   // Instructions
   testTrials.push({
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<h3>Testing: Operation "${func.name}"</h3>
-              <h5>Let's apply operation "${func.name}" to some new words.</h5>
-              <h5>No feedback will be provided.</h5>`,
-    choices: ['Continue']
+    stimulus: `<h3 style="color: red">Testing: ${func.name}</h3>
+              <div class="content-container">
+                <p>Now you have an understanding of what operation "${func.name}" does.</p>
+                <p>Let's apply "${func.name}" to new items.</p>
+                <p>A reference of the word-item associations and examples you saw in the training will be displayed.</p>
+                <p>You may see example(s) identical to the ones you saw in training.</p>
+                <p>In this phase, <b>no feedback</b> will be provided about your responses' correctness.</p>
+                <p>You will receive <b>bonus</b> payment for every example you answer correctly in this testing phase.</p>
+              </div>
+              `,
+    choices: ['Start']
   });
 
   // Test trials
@@ -47,21 +53,21 @@ function createTestTrial(func, item, referenceExamples) {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function() {
       let html = `<div id="test-container">`;
-      html += `<h3>Testing: Operation "${func.name}"</h3>`;
+      html += `<h3 style="color: red">Testing: ${func.name}</h3>`;
+      html += `<div class="content-container">`;
       html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
       // Display the 2 study examples with solutions
       html += renderAllExamplesWithSolutions(referenceExamples);
-      html += `<h5>Please produce the output for this new example:`;
+      html += `<p>Please produce the output for this example:`;
       if (item.catch_trial) {
-        html += ` *</h5>`;
+        html += ` *</p>`;
       }
       else{
-        html += `</h5>`;
+        html += `</p>`;
       }
-      html += `<p>${item.input} → </p>`;
-      // Include drag-and-drop interface
+      html += `<p style="color: red"><b>${item.input} → </b></p>`;
       html += createDragAndDropInterface();
-      html += `</div>`; // Close the test-container div
+      html += `</div></div>`; // Close the container div
       return html;
     },
     choices: "NO_KEYS",

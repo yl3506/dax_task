@@ -1,20 +1,21 @@
 const color_height = 25;
 const color_width = 25;
-const color_margin = 20;
+const color_margin = 10;
+
 
 function createDragAndDropInterface() {
-   return `
-       <div id="stimuli-list" style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center;">
-           ${getUniqueColorCirclesHTML()}
-       </div>
-       <div id="drop-area" style="text-align: center; border: 2px dashed #ccc; height: 80px; margin-top: 10px; padding: 10px; ">
-           <p>Drop items here</p>
-       </div>
-       <div id="buttons" style="margin-top: 10px;">
-           <button id="reset-button" type="button">Reset</button>
-           <button id="confirm-button" type="button">Confirm</button>
-       </div>
-   `;
+    return `
+        <div id="stimuli-list">
+            ${getUniqueColorCirclesHTML()}
+        </div>
+        <div id="drop-area">
+            <p>Drop items here</p>
+        </div>
+        <div id="buttons">
+            <button id="reset-button" type="button">Reset</button>
+            <button id="confirm-button" type="button">Confirm</button>
+        </div>
+    `;
 }
 
 function setupDragAndDropPractice(correctOutput) {
@@ -63,7 +64,7 @@ function setupDragAndDropPractice(correctOutput) {
     // Reset button functionality
     document.getElementById('reset-button').addEventListener('click', function() {
         // Clear drop area
-        dropArea.innerHTML = '<p>Drop circles here</p>';
+        dropArea.innerHTML = '<p>Drop items here</p>';
     });
 
     // Confirm button functionality
@@ -112,6 +113,8 @@ function setupDragAndDropPractice(correctOutput) {
                  jsPsych.finishTrial({
                    participant_response: participantResponse,
                    correct: isCorrect || passExample,
+                   isCorrect: isCorrect,
+                   passExample: passExample,
                    feedback_message: feedback_html,
                    practiceAttempts: EXPERIMENT_PARAMS.practiceAttempts, // Pass the attempt count
                  });
@@ -127,7 +130,7 @@ function setupDragAndDropPractice(correctOutput) {
             nextButton.style.padding = '10px 20px';
         
         } else {
-            alert('Please put circles into the drag-and-drop area.');
+            alert('Please put items into the drag-and-drop area.');
         }
     });
 }
@@ -196,29 +199,56 @@ function setupDragAndDropTest(correctOutput) {
     // Reset button functionality
     document.getElementById('reset-button').addEventListener('click', function() {
         // Clear drop area
-        dropArea.innerHTML = '<p>Drop circles here</p>';
+        dropArea.innerHTML = '<p>Drop items here</p>';
     });
 
-    // Confirm button functionality
-    document.getElementById('confirm-button').addEventListener('click', function() {
-    const sortedItems = dropArea.querySelectorAll('img');
-    if (sortedItems.length > 0) {
-      const participantResponse = [];
-      sortedItems.forEach(img => {
-        participantResponse.push(img.dataset.color);
-      });
-      const isCorrect = checkResponse(correctOutput, participantResponse);
+   // Confirm button functionality
+   document.getElementById('confirm-button').addEventListener('click', function() {
+       const sortedItems = dropArea.querySelectorAll('img');
+       if (sortedItems.length > 0) {
+           const participantResponse = [];
+           sortedItems.forEach(img => {
+               participantResponse.push(img.dataset.color);
+           });
+           const isCorrect = checkResponse(correctOutput, participantResponse);
 
-      // Finish trial and pass data
-      jsPsych.finishTrial({
-        participant_response: participantResponse,
-        correct: isCorrect,
-        correct_output: correctOutput
-      });
-    } else {
-      alert('Please put circles into the drag-and-drop area.');
-    }
-  });
+           // Disable drag-and-drop functionality
+           disableDragAndDrop();
+
+           // Display "Response recorded" message
+           const feedbackDiv = document.createElement('div');
+           feedbackDiv.id = 'feedback-message';
+           feedbackDiv.innerHTML = '<p>Response recorded.</p>';
+
+           // Determine the parent container
+           const container = document.querySelector('#test-container') || document.querySelector('#composition-test-container') || document.querySelector('#practice-container');
+
+           container.appendChild(feedbackDiv);
+
+           // Hide Confirm button
+           document.getElementById('confirm-button').style.display = 'none';
+
+           // Show Next button
+           const nextButton = document.createElement('button');
+           nextButton.id = 'next-button';
+           nextButton.textContent = 'Next';
+           nextButton.type = 'button';
+           document.getElementById('buttons').appendChild(nextButton);
+
+           nextButton.addEventListener('click', function() {
+               // Finish trial and pass data
+               jsPsych.finishTrial({
+                   participant_response: participantResponse,
+                   correct: isCorrect,
+                   correct_output: correctOutput
+               });
+           });
+           nextButton.style.fontSize = '18px';
+           nextButton.style.padding = '10px 20px';
+       } else {
+           alert('Please put items into the drag-and-drop area.');
+       }
+   });
 }
 
 
@@ -271,17 +301,18 @@ function disableDragAndDrop() {
     document.getElementById('reset-button').disabled = true;
 }
 
-
 function getUniqueColorCirclesHTML() {
-    colors = EXPERIMENT_PARAMS.colors;
-    colors = jsPsych.randomization.shuffle(colors);
+    const colors = jsPsych.randomization.shuffle(EXPERIMENT_PARAMS.colors);
     let html = '';
     for (const color of colors) {
-        html += `<img src="images/${color}.png" alt="${color}" data-color="${color}" draggable="true" style="width:${color_width}px; height:${color_height}px; margin-left:${color_margin}px; cursor: grab;">`;
+        html += `
+            <div class="stimuli-item">
+                <img src="images/${color}.png" alt="${color}" data-color="${color}" draggable="true">
+            </div>
+        `;
     }
     return html;
 }
-
 
 
 
@@ -320,13 +351,15 @@ function countPrimitiveDifferences(args1, args2) {
 function renderPrimitives() {
     const primitives = EXPERIMENT_PARAMS.concept_words;
     const wordColorMapping = EXPERIMENT_PARAMS.word_color_mapping;
-    let html = '<div style="text-align: center; display: flex; flex-wrap: wrap; justify-content: center;">';
+    let html = '<div class="primitives-container">';
     for (const word of primitives) {
-    const color = wordColorMapping[word];
-        html += `<div style="width: 20%; text-align: center; margin-bottom: 10px;">
-                 <p>${word}</p>
-                 <img src="images/${color}.png" alt="${color}" style="width:${color_width}px; height:${color_height}px; margin:${color_margin/2}px">
-               </div>`;
+        const color = wordColorMapping[word];
+        html += `
+            <div class="primitive-item">
+                <p>${word}</p>
+                <img src="images/${color}.png" alt="${color}">
+            </div>
+        `;
     }
     html += '</div>';
     return html;

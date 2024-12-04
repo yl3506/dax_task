@@ -34,16 +34,24 @@ function createStudyPhase(functionIndex) {
   studyTrials.push({
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
-      let html = `<h3>Training: Operation "${func.name}"</h3>
-                <h5>Learn how to apply the operation "${func.name}" to words.</h5>
-                <h5>The "${func.name}" operation will ${func.description}</h5>
-                <h5>Let's go through some examples and their answers.</h5>
-                `;
-      html += renderPrimitives(primitives, wordColorMapping);
-      html += `<p>`;
-      html += renderExampleWithSolution(examples[0]);
-      html += '</p>';
-      return html;
+    let html = `
+        <h3>Training: ${func.name}</h3>
+        <div class="content-container">
+            <p>
+            Learn how to apply the operation "${func.name}" to item(s). 
+            You need to infer what "${func.name}" does to the item(s).
+            </p>
+            <p>
+            Let's go through 1 example and 1 practice (with feedback). 
+            Below is the example of "${func.name}" with the correct answer.
+            </p>
+            ${renderPrimitives()}
+            <p>
+            <b>${renderExampleWithSolution(examples[0])}</b>
+            </p>
+        </div>
+    `;
+    return html;
     },
     choices: ['Continue']
   });
@@ -76,15 +84,20 @@ function createPracticeTrial(func, example, correctOutput, referenceExamples) {
      type: jsPsychHtmlKeyboardResponse,
      stimulus: function() {
      let html = `<div id="practice-container">`;
-     html += `<h3>Training: Operation "${func.name}"</h3>`;
+     html += `<h3>Training: ${func.name}</h3>`;
+     html += `<div class="content-container">`; 
      html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
      // Display reference examples (the first study example)
      html += renderAllExamplesWithSolutions(referenceExamples);
-     html += `<h5>Try to produce the output for this new example:</h5>`;
-     html += `<p>${example.input} → </p>`;
-     // Include drag-and-drop interface 
+     html += `<p>You might have some guesses of what "${func.name}" is doing. 
+              Let's practice. 
+              </p>
+              <p>
+              Try to produce the output for this new example below. 
+              You will receive feedback.</p>`;
+     html += `<p><b>${example.input} → </b></p>`; 
      html += createDragAndDropInterface();
-     html += `</div>`; 
+     html += `</div></div>`; 
      return html;
     },
      choices: "NO_KEYS",
@@ -104,6 +117,8 @@ function createPracticeTrial(func, example, correctOutput, referenceExamples) {
      on_finish: function(data) {
        data.participant_response = data.participant_response || [];
        data.correct = data.correct || false;
+       data.is_correct = data.isCorrect || false;
+       data.pass_example = data.passExample || false;
        data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
      },
      

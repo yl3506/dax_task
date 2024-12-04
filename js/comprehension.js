@@ -1,8 +1,5 @@
 
 function comprehensionCheckProcedure() {
-    // Define the comprehension trial
-    // TODO: need to make the choice buttons larger
-    // TODO: need to add a few lines of instruction text
     const comprehension_trial = {
         type: jsPsychSurveyMultiChoice,
         preamble: function() {
@@ -15,28 +12,33 @@ function comprehensionCheckProcedure() {
         },
         questions: [
             {
-                prompt: '<h5>Before we begin the main study, we have some questions for you.</h5>',
+                prompt: '<p>Before we begin the study, we have some questions for you.</p>',
                 options: [],
                 required: false
             },
-            // {
-            //     prompt: 'How many word-symbol associations did you see?',
-            //     name: 'num_concepts',
-            //     options: [2, 4, 6],
-            //     required: true
-            // },
-            // {
-            //     prompt: 'Will you be able to see a reference of the word-symbol associations during the study?',
-            //     name: 'primitives_reference',
-            //     options: ['Yes', 'No'],
-            //     required: true
-            // },
             {
-                prompt: '<h5>The main study will begin on the next page.</h5>',
+                prompt: 'Will there be feedback in the <b>training</b> phase?',
+                name: 'train_feedback',
+                options: ['Yes', 'No'],
+                required: true
+            },
+            {
+                prompt: 'Will there be feedback in the <b>testing</b> phase?',
+                name: 'test_feedback',
+                options: ['Yes', 'No'],
+                required: true
+            },
+            {
+                prompt: 'Will you be able to see a reference of the word-item associations during the study?',
+                name: 'primitives_reference',
+                options: ['Yes', 'No'],
+                required: true
+            },
+            {
+                prompt: '<p>The study will begin on the next page.</p>',
                 options: [],
                 required: false
             }
-            // ... add other comprehension questions if needed ...
         ],
     };
 
@@ -48,14 +50,16 @@ function comprehensionCheckProcedure() {
             const responses = data.values()[0].response;
             let all_correct = true;
             // Check each answer
-            // if (responses.num_concepts !== String(EXPERIMENT_PARAMS.K)) {
-            //     all_correct = false;
-            // }
-            // if (responses.primitives_reference !== 'Yes') {
-            //     all_correct = false;
-            // }
+            if (responses.train_feedback !== 'Yes') {
+                all_correct = false;
+            }
+            if (responses.test_feedback !== 'No') {
+                all_correct = false;
+            }
+            if (responses.primitives_reference !== 'Yes') {
+                all_correct = false;
+            }
             if (!all_correct) {
-                // Provide feedback to the participant
                 data.values()[0].feedback_message = 'Some of your answers were incorrect. Please try again.';
                 return true; // Repeat the comprehension trial
             } else {

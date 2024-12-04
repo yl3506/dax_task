@@ -1,3 +1,103 @@
 .dragging {
     opacity: 0.5;
 }
+.centered
+{
+  text-align:center;
+}
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Content Container */
+.content-container {
+    width: 80%; /* Consistent width */
+/*    margin: auto;*/
+/*    margin-bottom: 10px;*/
+    max-width: 1300px;
+    min-width: 1000px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Heading Styles */
+h3 {
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+
+/* Paragraph Styles */
+p {
+    margin-top: 8px;
+    margin-bottom: 3px;
+}
+
+/* Primitives Container */
+.primitives-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+/* Individual Primitive Item */
+.primitive-item {
+    width: 7%; /* Adjust as needed */
+    text-align: center;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+/* Primitive Image */
+.primitive-item img {
+    width: 25px;
+    height: 25px;
+}
+
+/* Stimuli List */
+#stimuli-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+/*    margin: 5px;*/
+    margin-top: 15px;
+}
+
+/* Individual Stimuli Item */
+.stimuli-item {
+    width: 7%; /* Adjust as needed */
+    text-align: center;
+}
+
+/* Stimuli Image */
+.stimuli-item img {
+    width: 27px; /* Adjust as needed */
+    height: 27px; /* Adjust as needed */
+    cursor: grab;
+}
+
+/* Drop Area */
+#drop-area {
+    text-align: center;
+    border: 2px dashed #ccc;
+    height: 80px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 5px;
+}
+
+/* Buttons Container */
+#buttons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Buttons Styling */
+#buttons button {
+    font-size: 16px;
+    padding: 8px 16px;
+    margin: 0 5px;
+}
