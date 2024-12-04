@@ -6,7 +6,7 @@ Study:
 arg1 func1 func3 arg2 -> ((arg1 func1) func3 arg2) -> arg2 arg1 arg1 arg1
 arg1 func3 arg2 func1 -> (arg1 func3 (arg2 func1)) -> arg2 arg2 arg2 arg1
 arg1 func3 arg2 func2 arg3 -> (arg1 func3 (arg2 func2 arg3)) -> arg2 arg3 arg2 arg1
-arg1 func2 arg2 func3 arg3 -> ((arg1 func2 arg2) func3 arg3) -> arg3 arg2 arg1 arg2
+arg1 func2 arg2 func3 arg3 -> ((arg1 func2 arg2) func3 arg3) -> arg3 arg1 arg2 arg1
 
 Test:
 arg1 func1 func3 arg2 -> ((arg1 func1) func3 arg2) -> arg2 arg1 arg1 arg1
@@ -224,14 +224,14 @@ function createCompositionTestTrial(item, referenceExamples) {
          // Display all study examples with solutions
          html += renderAllExamplesWithSolutions(referenceExamples);
          html += `<p>Please produce the output for this example:`;
-          if (item.catch_trial) {
-            html += ` *</p>`;
-          }
-          else{
-            html += `</p>`;
-          }
+          // if (item.catch_trial) {
+          //   html += ` *</p>`;
+          // }
+          // else{
+          //   html += `</p>`;
+          // }
+          html += `</p>`;
           html += `<p style="color: red"><b>${item.input} → </b></p>`;
-          // Include drag-and-drop interface
           html += createDragAndDropInterface();
           html += `</div></div>`; // Close the container div
           return html;
@@ -265,18 +265,21 @@ function generateCompositionExamples(functions, primitives) {
   const examples = [];
 
   const compositions = [
-    { funcs: ['func1', 'func3'], pattern: '((arg1 func1) func3 arg2)' },
-    { funcs: ['func3', 'func1'], pattern: '(arg1 func3 (arg2 func1))' },
-    { funcs: ['func3', 'func2'], pattern: '(arg1 func3 (arg2 func2 arg3))' },
-    { funcs: ['func2', 'func3'], pattern: '((arg1 func2 arg2) func3 arg3)' },
+    { funcs: ['func1', 'func3'], pattern: '((arg1 func1) func3 arg2)', arguments: [1, 2]},
+    { funcs: ['func3', 'func1'], pattern: '(arg1 func3 (arg2 func1))', arguments: [1, 2]},
+    { funcs: ['func3', 'func2'], pattern: '(arg1 func3 (arg2 func2 arg3))', arguments: [2, 0, 1]},
+    { funcs: ['func2', 'func3'], pattern: '((arg1 func2 arg2) func3 arg3)', arguments: [2, 0, 1] },
   ];
 
   for (const comp of compositions) {
     const numArgsNeeded = comp.pattern.match(/arg\d+/g).length;
 
     if (primitives.length >= numArgsNeeded) {
-      const args = selectPrimitives(primitives, numArgsNeeded);
-      // const input = buildCompositionInput(comp.funcs, args);
+      // const args = selectPrimitives(primitives, numArgsNeeded);
+      const args = [];
+      for (const idx of comp.arguments){
+        args.push(primitives[idx]);
+      }
       const input = buildCompositionInputFromPattern(comp.pattern, args, comp.funcs);
       const output = computeCompositionOutput(comp.pattern, args);
       examples.push({
@@ -309,14 +312,14 @@ function generateCompositionTestItems(functions, primitives, studyExamples) {
   for (const comp of compositions) {
     const numArgsNeeded = comp.pattern.match(/arg\d+/g).length;
 
-    // Generate args that differ from study examples by at least one primitive
+    // Generate args that differ from study examples by at least 2 arguments
     let args = [];
-    let maxAttempts = 50;
+    let maxAttempts = 100;
     let attempts = 0;
     do {
       args = selectPrimitives(primitives, numArgsNeeded);
       attempts++;
-    } while (!argsDifferEnough(args, studyExamples) && attempts < maxAttempts);
+    } while (!argsDifferEnough(args, studyExamples, 2) && attempts < maxAttempts);
     if (attempts >= maxAttempts) {
       console.warn('Could not find suitable args that differ from study examples.');
     }
@@ -335,15 +338,6 @@ function generateCompositionTestItems(functions, primitives, studyExamples) {
   return items;
 }
 
-
-function argsDifferEnough(args, studyExamples) {
-  for (const studyEx of studyExamples) {
-    if (countPrimitiveDifferences(args, studyEx.args) <= 1) {
-      return false;
-    }
-  }
-  return true;
-}
 
 
 function buildCompositionInputFromPattern(pattern, args, funcLabels) {

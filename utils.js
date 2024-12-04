@@ -336,7 +336,7 @@ function getAllPrimitivePairs(primitives) {
 
 function countPrimitiveDifferences(args1, args2) {
     if (args1.length !== args2.length) {
-        return Math.max(args1.length, args2.length); // Or return a high value to ensure exclusion
+        return 10;  // Math.max(args1.length, args2.length); // Or return a high value to ensure exclusion
     }
     let differences = 0;
     for (let i = 0; i < args1.length; i++) {
@@ -347,6 +347,29 @@ function countPrimitiveDifferences(args1, args2) {
     return differences;
 }
 
+
+function argsDifferEnough(args, studyExamples, minDifferences) {
+    const numArgs = args.length;
+    for (const studyEx of studyExamples) {
+        if (studyEx.args.length !== numArgs) {
+            continue; // Skip if the number of arguments is different
+        }
+        const differences = countPrimitiveDifferences(args, studyEx.args);
+        if (differences < minDifferences) {
+            return false; // Not enough differences with this study example
+        }
+    }
+    return true; // Differs enough from all study examples
+}
+
+// function argsDifferEnough(args, studyExamples) {
+//   for (const studyEx of studyExamples) {
+//     if (countPrimitiveDifferences(args, studyEx.args) <= 1) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 function renderPrimitives() {
     const primitives = EXPERIMENT_PARAMS.concept_words;
@@ -433,7 +456,7 @@ function generateUsageExamples(func, primitives, numExamples) {
   } else if (func.func === function2 || func.func === function3) {
     argsList = [
       [primitives[0], primitives[1]],
-      [primitives[2], primitives[3]],
+      [primitives[1], primitives[2]],
     ];
   }
   // Adjust the number of examples if necessary

@@ -59,12 +59,14 @@ function createTestTrial(func, item, referenceExamples) {
       // Display the 2 study examples with solutions
       html += renderAllExamplesWithSolutions(referenceExamples);
       html += `<p>Please produce the output for this example:`;
-      if (item.catch_trial) {
-        html += ` *</p>`;
-      }
-      else{
-        html += `</p>`;
-      }
+      // if (item.catch_trial) {
+      //   html += ` *</p>`;
+      // }
+      // else{
+      //   html += `</p>`;
+      // }
+      html += `</p>`;
+      
       html += `<p style="color: red"><b>${item.input} → </b></p>`;
       html += createDragAndDropInterface();
       html += `</div></div>`; // Close the container div
@@ -113,11 +115,29 @@ function generateTestItems(func, primitives, numItems, studyExamples) {
    possibleArgs = getAllPrimitivePairs(primitives);
  }
 
- // Filter out combinations that were used in study examples
- const testArgsList = possibleArgs.filter(args => {
-   const input = args.length === 1 ? `${args[0]} ${func.name}` : args.join(` ${func.name} `);
-   return !usedInputs.has(input);
- });
+ // Define minDifferences
+  const minDifferences = numArgs >= 2 ? 2 : 1;
+
+  // Filter out combinations that were used in study examples and ensure they differ sufficiently
+  const testArgsList = possibleArgs.filter(args => {
+      const input = args.length === 1 ? `${args[0]} ${func.name}` : args.join(` ${func.name} `);
+      // Exclude inputs used in study examples
+      if (usedInputs.has(input)){
+          return false;
+      }
+      // For multi-argument functions, ensure arguments differ by at least 2 from all study examples
+        if (numArgs >= 2) {
+            if (argsDifferEnough(args, studyExamples, minDifferences)){
+                return true; // Keep this args
+            } else {
+                return false; // Discard this args
+            }
+        } else {
+            // For single-argument functions, keep args not used in study examples
+            return true;
+        }
+    });
+
 
  // Shuffle and select required number of test items
  const shuffledArgsList = jsPsych.randomization.shuffle(testArgsList);
