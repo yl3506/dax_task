@@ -49,16 +49,20 @@ function createCompositionPhase() {
                     <p>
                     Learn how to apply multiple operations together.
                     You need to figure out how to apply the operations <b>in the right order</b>.
+                    This may require some trial and error.
                     Let's go through 2 examples and 2 practices (with feedback).
                     </p>
                     <p>
-                    Below are examples of applying multiple operations and their correct answers.
+                    At the bottom are 2 examples of applying multiple operations and their correct answers.
                     </p>
               `;
       html += renderPrimitives();
       // Display first 2 study examples with solutions
+      html += `<br>`;
       html += renderAllExamplesWithSolutions(allStudyExamples);
+      html += `<br>`;
       html += `<b>${renderAllExamplesWithSolutions(examples.slice(0, 2))}</b>`;
+      html += `<br>`;
       html += `</div>`;
       return html;
     },
@@ -109,7 +113,9 @@ function createPracticeTrialForComposition(example, referenceExamples) {
       html += `<div class="content-container">`;
       html += renderPrimitives();
       // Display reference examples
+      html += `<br>`;
       html += renderAllExamplesWithSolutions(referenceExamples);
+      html += `<br>`;
       html += `<p>
               Let's practice. 
               Keep in mind that there is a right order to apply the operations.
@@ -221,8 +227,10 @@ function createCompositionTestTrial(item, referenceExamples) {
          html += `<div class="content-container">`;
          html += `<h3 style="color: red">Testing: Combining Operations</h3>`;
          html += renderPrimitives();
+         html += `<br>`;
          // Display all study examples with solutions
          html += renderAllExamplesWithSolutions(referenceExamples);
+         html += `<br>`;
          html += `<p>Please produce the output for this example:`;
           // if (item.catch_trial) {
           //   html += ` *</p>`;

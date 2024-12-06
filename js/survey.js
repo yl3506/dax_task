@@ -10,13 +10,15 @@ function surveyProcedure() {
                prompt: 'Please briefly describe the strategies you used during the study.',
                name: 'strategy',
                rows: 5,
-               columns: 80
+               columns: 80,
+               required: true,
            },
            {
                prompt: 'Do you have any comments (e.g. technical issues, confusions, etc.)?',
                name: 'comment',
                rows: 5,
-               columns: 80
+               columns: 80,
+               required: false,
            }
        ]
    });
@@ -26,8 +28,11 @@ function surveyProcedure() {
     survey_trials.push({
         type: jsPsychSurveyText,
         questions: [
-            {prompt: 'What is your participant ID?', 
-             name: 'prolific_id'}
+            {
+                prompt: 'What is your participant ID?', 
+                name: 'prolific_id', 
+                required: true
+            }
         ],
         on_finish: function(data) {
             const prolificId = data.response.prolific_id;
@@ -44,12 +49,12 @@ function surveyProcedure() {
             {
                 prompt: 'What is your gender?',
                 name: 'gender',
-                required: false
+                required: true
             },
             {
                 prompt: 'What is your age?',
                 name: 'age',
-                required: false
+                required: true
             }
         ]
     });
@@ -66,7 +71,12 @@ function surveyProcedure() {
         choices: ['Finish Study'],
         on_finish: function() {
             // Redirect to completion URL
-            window.location.href = 'https://www.prolific.co/completion-url';
+            window.location.href = 'https://connect-researcher-help.cloudresearch.com/hc/en-us/articles/5046202939796-Project-Completion';
+            if (EXPERIMENT_PARAMS.K <= 4){
+                window.location.href = 'https://connect.cloudresearch.com/participant/project/41B26CAA44/complete';
+            } else {
+                window.location.href = 'https://connect.cloudresearch.com/participant/project/495580D514/complete';
+            }
         }
     });
 

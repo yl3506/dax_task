@@ -38,17 +38,19 @@ function createStudyPhase(functionIndex) {
         <h3>Training: ${func.name}</h3>
         <div class="content-container">
             <p>
-            Learn how to apply the operation "${func.name}" to item(s). 
-            You need to infer what "${func.name}" does to the item(s).
+              Learn how to apply the operation "${func.name}" to item(s). 
+              You need to infer what "${func.name}" does to the item(s).
             </p>
             <p>
-            Let's go through 1 example and 1 practice (with feedback). 
-            Below is the example of "${func.name}" with the correct answer.
+              Let's go through 1 example and 1 practice (with feedback). 
+              Below is the example of "${func.name}" with the correct answer.
             </p>
             ${renderPrimitives()}
+            <br>
             <p>
-            <b>${renderExampleWithSolution(examples[0])}</b>
+              <b>${renderExampleWithSolution(examples[0])}</b>
             </p>
+            <br>
         </div>
     `;
     return html;
@@ -88,13 +90,17 @@ function createPracticeTrial(func, example, correctOutput, referenceExamples) {
      html += `<div class="content-container">`; 
      html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
      // Display reference examples (the first study example)
+     html += `<br>`;
      html += renderAllExamplesWithSolutions(referenceExamples);
-     html += `<p>You might have some guesses of what "${func.name}" is doing. 
+     html += `<br>
+              <p>
+              You might have some guesses of what "${func.name}" is doing. 
               Let's practice. 
               </p>
               <p>
               Try to produce the output for this new example below. 
-              You will receive feedback.</p>`;
+              You will receive feedback.
+              </p>`;
      html += `<p><b>${example.input} → </b></p>`; 
      html += createDragAndDropInterface();
      html += `</div></div>`; 

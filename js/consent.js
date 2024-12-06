@@ -17,7 +17,7 @@ function consentProcedure() {
             <p>Read and understand the instructions for the study.</p>
             <p>Learn new concepts of operations through examples and practices.</p>
             <p>Apply the operations to new examples during testing.</p>
-            <p>Complete an optional demographic questionaire at the end.</p>
+            <p>Answer a few demographic questions at the end.</p>
 
             <p></p>
             <h3>Duration of study:</h3>
@@ -26,7 +26,7 @@ function consentProcedure() {
             <p></p>
             <h3>Compensation:</h3>
             <p>Base payment: You will receive $8 base payment (around $16/hour) by completing this study.</p>
-            <p>Bonus payment: For every example you answer correctly in <b style="color: red">testing phase</b>, you will receive $1 extra payment.</p>
+            <p>Bonus payment: For every example you answer correctly in <b style="color: red">testing phase</b>, you will receive $0.25 extra payment.</p>
 
             <p></p>
             <h3>Risks:</h3>

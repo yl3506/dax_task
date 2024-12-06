@@ -5,7 +5,6 @@ function introductionProcedure() {
     // Generate a random sequence of 3 different colors for practice
     const colors = EXPERIMENT_PARAMS.colors;
     const practiceSequence = jsPsych.randomization.sampleWithoutReplacement(colors, 3);
-
     // drag and drop interface
     const practiceTrial = {
         type: jsPsychHtmlKeyboardResponse,
@@ -18,7 +17,8 @@ function introductionProcedure() {
                     you will use this drag-and-drop interface to produce your responses.
                     So, let's practice now. 
                     Drag the items below to produce this sequence:
-                    </p>`;
+                    </p>
+                    <br>`;
             for (const color of practiceSequence) {
                 html += `<img src="images/${color}.png" alt="${color}" style="width:${color_width}px; height:${color_height}px; margin-left: ${color_margin}px;">`;
             }
@@ -44,7 +44,6 @@ function introductionProcedure() {
         type: jsPsychHtmlButtonResponse,
         stimulus: function() {
             let html = '<h2>Instructions I</h2>';
-            // html += `<div style="width: 100%; margin: auto;">`;
             html += `<div class="content-container">`;
             html += `<p>In this study, you will use these new words.
                     Each word is associated with an item/emoji.</p>`;
@@ -65,6 +64,7 @@ function introductionProcedure() {
                         <p>There will be <b>4 stages</b> in the study.</p>
                         <p>The first 3 stages will focus on single operations.</p>
                         <p>The final stage will focus on combining multiple operations together.</p>
+                        <br>
                         <p><b>In each stage, there will be a training phase and a testing phase.</b></p>
                         <p>In each <b>training</b> phase, you will first see examples with correct answers, </p>
                         <p>and then practice on new examples (with feedback about the correctness of your response).</p>
@@ -72,8 +72,10 @@ function introductionProcedure() {
                         <p>In each <b>testing</b> phase, no feedback will be provided.</p>
                         <p>You will apply your understanding of the operations to new examples.</p>
                         <p>You will receive <b>bonus payment</b> for each testing example you answer correctly.</p>
+                        <br>
                         <p>You do not need to memorize any word or item.</p>
                         <p>A reference of word-item associations will be displayed throughout the study.</p>
+                        <br>
                     <div>`;
             return html;
         },

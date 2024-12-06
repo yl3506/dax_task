@@ -4,7 +4,6 @@ const jsPsych = initJsPsych({
     on_finish: function() {
         // For testing, save data locally
         // saveDataLocally();
-
         // For deployment, save data to server
         saveDataToServer();
     }
@@ -13,10 +12,10 @@ const jsPsych = initJsPsych({
 
 // Global experiment parameters
 const EXPERIMENT_PARAMS = {
-    K: 4,  // Number of novel concept words to teach
+    K: 25,  // Number of novel concept words to teach
     F: 3,  // Number of novel functions to teach
     X: 2, // Number of test trials in single function stage
-    available_words: ['dax', 'wif', 'lug', 'kav', 'zem', 'fep', 'blicket', 'niz', 'kiki', 'zog', 'pim', 'rav', 'lunt', 'kev', 'mib', 'plim', 'vex', 'sug', 'flim', 'nog', 'quip', 'blug', 'taz', 'snib', 'jax', 'sorn', 'mav', 'glep', 'yim', 'blap', 'slib', 'frip', 'glom', 'twib', 'kelm', 'vug', 'zaf', 'mox', 'pif', 'clum', 'drab', 'torp', 'griv', 'klet', 'spiv', 'hax', 'nex', 'yub', 'zilp', 'worb', 'grack', 'flanx', 'truv', 'kelp'],
+    available_words: ['dax', 'wif', 'lug', 'zem', 'fep', 'blicket', 'niz', 'kiki', 'rav', 'lunt', 'mib', 'vex', 'flim', 'nog', 'quip', 'blug', 'taz', 'snib', 'sorn', 'yim', 'blap', 'frip', 'glom', 'twib', 'zaf', 'mox', 'pif', 'clum', 'drab', 'torp', 'griv', 'klet', 'spiv', 'yub', 'zilp', 'worb', 'grack', 'flanx', 'truv', 'kelp'],
     available_colors: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'aa'],
     participant_id: generateUniqueId(),
     start_time: new Date(),

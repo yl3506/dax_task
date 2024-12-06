@@ -53,10 +53,41 @@ function setupDragAndDropPractice(correctOutput) {
         e.preventDefault();
         const source = e.dataTransfer.getData('drag-source');
         const color = e.dataTransfer.getData('text/plain');
-        const draggingItem = document.querySelector('.dragging');
 
         if (source === 'stimuli-list') {
-            addCircleToDropArea(color);
+            // Remove placeholder text if present
+            if (dropArea.querySelector('p')) {
+                dropArea.querySelector('p').remove();
+            }
+
+            const newImg = document.createElement('img');
+            newImg.src = `images/${color}.png`;
+            newImg.alt = color;
+            newImg.dataset.color = color;
+            newImg.style.width = `${color_width}px`;
+            newImg.style.height = `${color_width}px`;
+            newImg.style.margin = `${color_margin / 2}px`;
+            newImg.style.cursor = 'grab';
+            newImg.draggable = true;
+
+            // Add drag and drop functionality to the newImg
+            newImg.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', e.target.dataset.color);
+                e.dataTransfer.setData('drag-source', 'drop-area');
+                e.target.classList.add('dragging');
+            });
+            newImg.addEventListener('dragend', function(e) {
+                e.target.classList.remove('dragging');
+            });
+
+            // Determine where to insert the new item
+            const afterElement = getDragAfterElement(dropArea, e.clientX);
+
+            if (afterElement == null) {
+                dropArea.appendChild(newImg);
+            } else {
+                dropArea.insertBefore(newImg, afterElement);
+            }
         }
         // No additional handling needed for rearrangement; it's managed during dragover
     });
@@ -185,15 +216,59 @@ function setupDragAndDropTest(correctOutput) {
         }
     });
 
-    // Handle drop on dropArea
+    // // Handle drop on dropArea
+    // dropArea.addEventListener('drop', function(e) {
+    //     e.preventDefault();
+    //     const source = e.dataTransfer.getData('drag-source');
+    //     const color = e.dataTransfer.getData('text/plain');
+    //     const draggingItem = document.querySelector('.dragging');
+    //     if (source === 'stimuli-list') {
+    //         addCircleToDropArea(color);
+    //     }
+    // });
+
+    // Handle drop on dropArea for adding new items from stimuliList
     dropArea.addEventListener('drop', function(e) {
         e.preventDefault();
         const source = e.dataTransfer.getData('drag-source');
         const color = e.dataTransfer.getData('text/plain');
-        const draggingItem = document.querySelector('.dragging');
+
         if (source === 'stimuli-list') {
-            addCircleToDropArea(color);
+            // Remove placeholder text if present
+            if (dropArea.querySelector('p')) {
+                dropArea.querySelector('p').remove();
+            }
+
+            const newImg = document.createElement('img');
+            newImg.src = `images/${color}.png`;
+            newImg.alt = color;
+            newImg.dataset.color = color;
+            newImg.style.width = `${color_width}px`;
+            newImg.style.height = `${color_width}px`;
+            newImg.style.margin = `${color_margin / 2}px`;
+            newImg.style.cursor = 'grab';
+            newImg.draggable = true;
+
+            // Add drag and drop functionality to the newImg
+            newImg.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', e.target.dataset.color);
+                e.dataTransfer.setData('drag-source', 'drop-area');
+                e.target.classList.add('dragging');
+            });
+            newImg.addEventListener('dragend', function(e) {
+                e.target.classList.remove('dragging');
+            });
+
+            // Determine where to insert the new item
+            const afterElement = getDragAfterElement(dropArea, e.clientX);
+
+            if (afterElement == null) {
+                dropArea.appendChild(newImg);
+            } else {
+                dropArea.insertBefore(newImg, afterElement);
+            }
         }
+        // No additional handling needed for rearrangement; it's managed during dragover
     });
 
     // Reset button functionality

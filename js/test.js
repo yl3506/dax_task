@@ -57,7 +57,9 @@ function createTestTrial(func, item, referenceExamples) {
       html += `<div class="content-container">`;
       html += renderPrimitives(EXPERIMENT_PARAMS.concept_words, EXPERIMENT_PARAMS.word_color_mapping);
       // Display the 2 study examples with solutions
+      html += `<br>`;
       html += renderAllExamplesWithSolutions(referenceExamples);
+      html += `<br>`;
       html += `<p>Please produce the output for this example:`;
       // if (item.catch_trial) {
       //   html += ` *</p>`;
