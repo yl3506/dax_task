@@ -12,7 +12,7 @@ const jsPsych = initJsPsych({
 
 // Global experiment parameters
 const EXPERIMENT_PARAMS = {
-    K: 25,  // Number of novel concept words to teach
+    K: 4,  // Number of novel concept words to teach
     F: 3,  // Number of novel functions to teach
     X: 2, // Number of test trials in single function stage
     available_words: ['dax', 'wif', 'lug', 'zem', 'fep', 'blicket', 'niz', 'kiki', 'rav', 'lunt', 'mib', 'vex', 'flim', 'nog', 'quip', 'blug', 'taz', 'snib', 'sorn', 'yim', 'blap', 'frip', 'glom', 'twib', 'zaf', 'mox', 'pif', 'clum', 'drab', 'torp', 'griv', 'klet', 'spiv', 'yub', 'zilp', 'worb', 'grack', 'flanx', 'truv', 'kelp'],

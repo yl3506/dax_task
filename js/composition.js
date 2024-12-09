@@ -48,12 +48,18 @@ function createCompositionPhase() {
                   <div class="content-container">
                     <p>
                     Learn how to apply multiple operations together.
-                    You need to figure out how to apply the operations <b>in the right order</b>.
-                    This may require some trial and error.
-                    Let's go through 2 examples and 2 practices (with feedback).
                     </p>
                     <p>
-                    At the bottom are 2 examples of applying multiple operations and their correct answers.
+                    The <b> right order</b> of applying the operations is: 
+                    first apply "${EXPERIMENT_PARAMS.functions[0].name}" if it exists, 
+                    then "${EXPERIMENT_PARAMS.functions[1].name}", 
+                    finally "${EXPERIMENT_PARAMS.functions[2].name}". 
+                    </p>
+                    <p>
+                    Let's go through 3 examples and 1 practice (with feedback).
+                    </p>
+                    <p>
+                    At the bottom are 3 examples of applying multiple operations and their correct answers.
                     </p>
               `;
       html += renderPrimitives();
@@ -61,7 +67,7 @@ function createCompositionPhase() {
       html += `<br>`;
       html += renderAllExamplesWithSolutions(allStudyExamples);
       html += `<br>`;
-      html += `<b>${renderAllExamplesWithSolutions(examples.slice(0, 2))}</b>`;
+      html += `<b>${renderAllExamplesWithSolutions(examples.slice(0, 3))}</b>`;
       html += `<br>`;
       html += `</div>`;
       return html;
@@ -69,8 +75,8 @@ function createCompositionPhase() {
     choices: ['Continue'],
   });
 
-  // Participant responds to the last 2 study examples (with feedback)
-  for (let i = 2; i < 4; i++) {
+  // Participant responds to the last 1 study example (with feedback)
+  for (let i = 3; i < 4; i++) {
     const referenceExamples = [];
     referenceExamples.push(...allStudyExamples);
     referenceExamples.push(...examples.slice(0, i));
@@ -95,7 +101,6 @@ function createCompositionPhase() {
   // Add test phase
   const testTrials = createCompositionTestPhase(examples);
   compositionTrials.push(...testTrials);
-
   return compositionTrials;
 }
 
@@ -118,7 +123,8 @@ function createPracticeTrialForComposition(example, referenceExamples) {
       html += `<br>`;
       html += `<p>
               Let's practice. 
-              Keep in mind that there is a right order to apply the operations.
+              Keep in mind the right order to apply the operations: 
+              "${EXPERIMENT_PARAMS.functions[0].name}", then "${EXPERIMENT_PARAMS.functions[1].name}", then "${EXPERIMENT_PARAMS.functions[2].name}"
               </p> 
               <p>
               Try to produce the output for this new example below. 
@@ -231,14 +237,12 @@ function createCompositionTestTrial(item, referenceExamples) {
          // Display all study examples with solutions
          html += renderAllExamplesWithSolutions(referenceExamples);
          html += `<br>`;
-         html += `<p>Please produce the output for this example:`;
-          // if (item.catch_trial) {
-          //   html += ` *</p>`;
-          // }
-          // else{
-          //   html += `</p>`;
-          // }
-          html += `</p>`;
+         html += `<p>
+                  Note the right order to apply the operations: 
+                  "${EXPERIMENT_PARAMS.functions[0].name}", then "${EXPERIMENT_PARAMS.functions[1].name}", then "${EXPERIMENT_PARAMS.functions[2].name}". 
+                  Please produce the output for this example:
+                  </p>
+                  `;
           html += `<p style="color: red"><b>${item.input} → </b></p>`;
           html += createDragAndDropInterface();
           html += `</div></div>`; // Close the container div
@@ -283,7 +287,6 @@ function generateCompositionExamples(functions, primitives) {
     const numArgsNeeded = comp.pattern.match(/arg\d+/g).length;
 
     if (primitives.length >= numArgsNeeded) {
-      // const args = selectPrimitives(primitives, numArgsNeeded);
       const args = [];
       for (const idx of comp.arguments){
         args.push(primitives[idx]);

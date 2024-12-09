@@ -60,15 +60,7 @@ function createTestTrial(func, item, referenceExamples) {
       html += `<br>`;
       html += renderAllExamplesWithSolutions(referenceExamples);
       html += `<br>`;
-      html += `<p>Please produce the output for this example:`;
-      // if (item.catch_trial) {
-      //   html += ` *</p>`;
-      // }
-      // else{
-      //   html += `</p>`;
-      // }
-      html += `</p>`;
-      
+      html += `<p>Please produce the output for this example:</p>`;
       html += `<p style="color: red"><b>${item.input} → </b></p>`;
       html += createDragAndDropInterface();
       html += `</div></div>`; // Close the container div
