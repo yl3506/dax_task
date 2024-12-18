@@ -124,7 +124,7 @@ function createPracticeTrial(func, example, correctOutput, referenceExamples) {
        data.participant_response = data.participant_response || [];
        data.correct = data.correct || false;
        data.is_correct = data.isCorrect || false;
-       data.pass_example = data.passExample || false;
+       data.skip_example = data.skipExample || false;
        data.rt = jsPsych.getTotalTime() - data.time_elapsed; // Time spent on this trial
      },
      

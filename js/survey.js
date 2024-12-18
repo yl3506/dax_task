@@ -70,13 +70,19 @@ function surveyProcedure() {
                     </p>`,
         choices: ['Finish Study'],
         on_finish: function() {
+            // For testing, save data locally
+            // saveDataLocally();
+            // For deployment, save data to server
+            saveDataToServer();
             // Redirect to completion URL
-            window.location.href = 'https://connect-researcher-help.cloudresearch.com/hc/en-us/articles/5046202939796-Project-Completion';
-            if (EXPERIMENT_PARAMS.K <= 4){
-                window.location.href = 'https://connect.cloudresearch.com/participant/project/41B26CAA44/complete';
-            } else {
-                window.location.href = 'https://connect.cloudresearch.com/participant/project/495580D514/complete';
-            }
+            setTimeout(function() {
+                window.location.href = 'https://connect-researcher-help.cloudresearch.com/hc/en-us/articles/5046202939796-Project-Completion';
+                if (EXPERIMENT_PARAMS.K <= 4){
+                    window.location.href = 'https://connect.cloudresearch.com/participant/project/41B26CAA44/complete';
+                } else {
+                    window.location.href = 'https://connect.cloudresearch.com/participant/project/495580D514/complete';
+                }
+            }, 3000); // wait 3 seconds for data to save
         }
     });
 

@@ -108,7 +108,7 @@ function setupDragAndDropPractice(correctOutput) {
             });
 
             isCorrect = checkResponse(correctOutput, participantResponse);
-            passExample = EXPERIMENT_PARAMS.practiceAttempts >= 2 && !isCorrect;
+            skipExample = EXPERIMENT_PARAMS.practiceAttempts >= 2 && !isCorrect;
             console.log("EXPERIMENT_PARAMS.practiceAttempts", EXPERIMENT_PARAMS.practiceAttempts)
 
             // Disable drag-and-drop functionality
@@ -116,7 +116,7 @@ function setupDragAndDropPractice(correctOutput) {
 
             // Provide feedback
             let feedback_html = '';
-            if (passExample){
+            if (skipExample){
                 feedback_html = `<p style="color:red;">Maximum attempt reached. Skip. </p>`;
             } else if (isCorrect) {
                 feedback_html = '<p style="color:green;">Correct!</p>';
@@ -143,15 +143,15 @@ function setupDragAndDropPractice(correctOutput) {
                  // Finish trial and pass data
                  jsPsych.finishTrial({
                    participant_response: participantResponse,
-                   correct: isCorrect || passExample,
+                   correct: isCorrect || skipExample,
                    isCorrect: isCorrect,
-                   passExample: passExample,
+                   skipExample: skipExample,
                    feedback_message: feedback_html,
                    practiceAttempts: EXPERIMENT_PARAMS.practiceAttempts, // Pass the attempt count
                  });
                });
             // When max attempts reached
-           if (passExample) {
+           if (skipExample) {
              nextButton.textContent = 'Skip';
            } else{
                 // Set the label based on correctness
