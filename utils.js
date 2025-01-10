@@ -437,15 +437,6 @@ function argsDifferEnough(args, studyExamples, minDifferences) {
     return true; // Differs enough from all study examples
 }
 
-// function argsDifferEnough(args, studyExamples) {
-//   for (const studyEx of studyExamples) {
-//     if (countPrimitiveDifferences(args, studyEx.args) <= 1) {
-//       return false;
-//     }
-//   }
-//   return true;
-// }
-
 function renderPrimitives() {
     const primitives = EXPERIMENT_PARAMS.concept_words;
     const wordColorMapping = EXPERIMENT_PARAMS.word_color_mapping;
